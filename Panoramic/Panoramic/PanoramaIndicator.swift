@@ -20,7 +20,7 @@ var backgroundViewScrollIndicatorKey: Void?
 extension UIScrollView{
 
     //MARK: Getters/Setters
-    func setViewForPanoramaIndicator(viewScrollIndicator:UIView){
+    func setViewForPanoramaIndicator(_ viewScrollIndicator:UIView){
         objc_setAssociatedObject(self, &viewScrollIndicatorKey, viewScrollIndicator, objc_AssociationPolicy.OBJC_ASSOCIATION_RETAIN_NONATOMIC)
     }
     
@@ -28,7 +28,7 @@ extension UIScrollView{
     
         return objc_getAssociatedObject(self, &viewScrollIndicatorKey) as? UIView;
     }
-    func setBackgroundViewForPanoramaIndicator(backgroundViewScrollIndicator:UIView){
+    func setBackgroundViewForPanoramaIndicator(_ backgroundViewScrollIndicator:UIView){
     
         objc_setAssociatedObject(self, &backgroundViewScrollIndicatorKey, backgroundViewScrollIndicator, .OBJC_ASSOCIATION_RETAIN)
     }
@@ -43,15 +43,15 @@ extension UIScrollView{
         
             
             self.showsHorizontalScrollIndicator = false
-            let indicatorColor:UIColor = UIColor.whiteColor()
+            let indicatorColor:UIColor = UIColor.white
             
             // Configure the scroll indicator's background
             let backgroundIndicatorWidth:CGFloat = self.frame.size.width - (ScrollIndicatorLeftRightThreshold * 2)
-            let backgroundIndicatorFrame:CGRect = CGRectMake(self.contentOffset.x + (self.frame.size.width / 2) - (backgroundIndicatorWidth / 2), self.frame.size.height - ScrollIndicatorHeight - ScrollIndicatorBottomSpace, backgroundIndicatorWidth, ScrollIndicatorHeight)
+            let backgroundIndicatorFrame:CGRect = CGRect(x: self.contentOffset.x + (self.frame.size.width / 2) - (backgroundIndicatorWidth / 2), y: self.frame.size.height - ScrollIndicatorHeight - ScrollIndicatorBottomSpace, width: backgroundIndicatorWidth, height: ScrollIndicatorHeight)
             
             var backgroundViewScrollIndicator:UIView!
             backgroundViewScrollIndicator = UIView(frame: backgroundIndicatorFrame)
-            backgroundViewScrollIndicator.backgroundColor = indicatorColor.colorWithAlphaComponent(0.50)
+            backgroundViewScrollIndicator.backgroundColor = indicatorColor.withAlphaComponent(0.50)
             self.setBackgroundViewForPanoramaIndicator(backgroundViewScrollIndicator)
             self.addSubview(backgroundViewScrollIndicator)
             
@@ -62,11 +62,11 @@ extension UIScrollView{
                 viewScrollIndicatorWidth = ScrollIndicatorDefaultWidth
             }
             
-            let scrollIndicatorFrame:CGRect = CGRectMake(self.contentOffset.x + (self.frame.size.width / 2) - (viewScrollIndicatorWidth / 2), self.frame.size.height - ScrollIndicatorHeight - ScrollIndicatorBottomSpace, viewScrollIndicatorWidth, ScrollIndicatorHeight)
+            let scrollIndicatorFrame:CGRect = CGRect(x: self.contentOffset.x + (self.frame.size.width / 2) - (viewScrollIndicatorWidth / 2), y: self.frame.size.height - ScrollIndicatorHeight - ScrollIndicatorBottomSpace, width: viewScrollIndicatorWidth, height: ScrollIndicatorHeight)
             
             var viewScrollIndicator:UIView!
             viewScrollIndicator = UIView(frame: scrollIndicatorFrame)
-            viewScrollIndicator.backgroundColor = indicatorColor.colorWithAlphaComponent(1.0)
+            viewScrollIndicator.backgroundColor = indicatorColor.withAlphaComponent(1.0)
             [self .setViewForPanoramaIndicator(viewScrollIndicator)];
             self.addSubview(viewScrollIndicator)
             
@@ -109,8 +109,8 @@ extension UIScrollView{
     //MARK: KVO
     func setupObservers(){
     
-        self.addObserver(self, forKeyPath:"contentSize", options: [NSKeyValueObservingOptions.New, NSKeyValueObservingOptions.Old] , context: nil)
-        self.addObserver(self, forKeyPath:"contentOffset", options: [NSKeyValueObservingOptions.New, NSKeyValueObservingOptions.Old] , context: nil)
+        self.addObserver(self, forKeyPath:"contentSize", options: [NSKeyValueObservingOptions.new, NSKeyValueObservingOptions.old] , context: nil)
+        self.addObserver(self, forKeyPath:"contentOffset", options: [NSKeyValueObservingOptions.new, NSKeyValueObservingOptions.old] , context: nil)
     }
     
     func stopObservers(){
@@ -120,7 +120,7 @@ extension UIScrollView{
         
     }
     
-    override public func observeValueForKeyPath(keyPath: String?, ofObject object: AnyObject?, change: [String : AnyObject]?, context: UnsafeMutablePointer<Void>) {
+    override open func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
         
         if self.contentSize.width > 0.0{
         

@@ -8,6 +8,26 @@
 
 import UIKit
 import CoreMotion
+fileprivate func < <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
+  switch (lhs, rhs) {
+  case let (l?, r?):
+    return l < r
+  case (nil, _?):
+    return true
+  default:
+    return false
+  }
+}
+
+fileprivate func > <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
+  switch (lhs, rhs) {
+  case let (l?, r?):
+    return l > r
+  default:
+    return rhs < lhs
+  }
+}
+
 
 
 class PanoramaView: UIView {
@@ -15,32 +35,32 @@ class PanoramaView: UIView {
 
     //Constatnts
     let CRMotionViewRotationMinimumThreshold:CGFloat = 0.1
-    let CRMotionGyroUpdateInterval:NSTimeInterval = 1 / 100
+    let CRMotionGyroUpdateInterval:TimeInterval = 1 / 100
     let CRMotionViewRotationFactor:CGFloat = 4.0
 
     // Managing Motion Sensing
-    private var motionManager: CMMotionManager = CMMotionManager()
-    private var motionEnabled: Bool = true
-    private var scrollIndicatorEnabled: Bool = true
+    fileprivate var motionManager: CMMotionManager = CMMotionManager()
+    fileprivate var motionEnabled: Bool = true
+    fileprivate var scrollIndicatorEnabled: Bool = true
 
     //Subviews
-    private var viewFrame: CGRect!
-    private var scrollView: UIScrollView!
-    private var imageView: UIImageView!
+    fileprivate var viewFrame: CGRect!
+    fileprivate var scrollView: UIScrollView!
+    fileprivate var imageView: UIImageView!
 
     //Managing Motion
-    private var motionRate:CGFloat!
-    private var minimumXOffset:CGFloat!
-    private var maximumXOffset:CGFloat!
+    fileprivate var motionRate:CGFloat!
+    fileprivate var minimumXOffset:CGFloat!
+    fileprivate var maximumXOffset:CGFloat!
 
     // The image that will be diplayed.
-    private var image: UIImage!
+    fileprivate var image: UIImage!
 
 
     // MARK: - Initialization
     override init(frame: CGRect) {
         super.init(frame: frame)
-        viewFrame = CGRectMake(0.0, 0.0, CGRectGetWidth(frame), CGRectGetHeight(frame))
+        viewFrame = CGRect(x: 0.0, y: 0.0, width: frame.width, height: frame.height)
         self.commonInit()
     }
 
@@ -53,15 +73,15 @@ class PanoramaView: UIView {
     func commonInit(){
 
         self.scrollView = UIScrollView(frame: self.viewFrame)
-        self.scrollView.userInteractionEnabled = false
+        self.scrollView.isUserInteractionEnabled = false
         self.scrollView.alwaysBounceVertical = false
-        self.scrollView.contentSize = CGSizeZero
+        self.scrollView.contentSize = CGSize.zero
         self.addSubview(self.scrollView)
 
         self.imageView = UIImageView(frame: self.viewFrame)
-        self.imageView.autoresizingMask = [.FlexibleWidth, .FlexibleHeight]
-        self.imageView.backgroundColor = UIColor.blackColor()
-        self.imageView.contentMode = UIViewContentMode.ScaleAspectFit
+        self.imageView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        self.imageView.backgroundColor = UIColor.black
+        self.imageView.contentMode = UIViewContentMode.scaleAspectFit
         self.scrollView.addSubview(self.imageView)
 
         self.minimumXOffset = 0
@@ -74,17 +94,17 @@ class PanoramaView: UIView {
     /*
     set image for the imageview to display it to the reciever.
     */
-    func setImage(image:UIImage){
+    func setImage(_ image:UIImage){
 
         self.image = image
 
         let width = self.viewFrame.size.height / self.image.size.height * self.image.size.width
-        self.imageView.frame = CGRectMake(0, 0, width, self.viewFrame.height)
-        self.imageView.backgroundColor = UIColor.blueColor()
+        self.imageView.frame = CGRect(x: 0, y: 0, width: width, height: self.viewFrame.height)
+        self.imageView.backgroundColor = UIColor.blue
         self.imageView.image = self.image
 
-        self.scrollView.contentSize = CGSizeMake(self.imageView.frame.size.width, self.scrollView.frame.size.height)
-        self.scrollView.contentOffset = CGPointMake((self.scrollView.contentSize.width - self.scrollView.frame.size.width) / 2, 0)
+        self.scrollView.contentSize = CGSize(width: self.imageView.frame.size.width, height: self.scrollView.frame.size.height)
+        self.scrollView.contentOffset = CGPoint(x: (self.scrollView.contentSize.width - self.scrollView.frame.size.width) / 2, y: 0)
 
         //enable panormama indicator.
         self.scrollView.enablePanoramaIndicator()
@@ -96,7 +116,7 @@ class PanoramaView: UIView {
     /*
     enable motion and recieving the gyro updates.
     */
-    func setMotionEnabled(motionEnabled:Bool){
+    func setMotionEnabled(_ motionEnabled:Bool){
 
         self.motionEnabled = motionEnabled
         if self.motionEnabled{
@@ -112,7 +132,7 @@ class PanoramaView: UIView {
     /*
     enable or disable the scrolling of the scrolling indicator of PanoramaIndicator.
     */
-    func setScrollIndicatorEnabled(scrollIndicatorEnabled:Bool){
+    func setScrollIndicatorEnabled(_ scrollIndicatorEnabled:Bool){
 
         self.scrollIndicatorEnabled = scrollIndicatorEnabled
         if self.scrollIndicatorEnabled{
@@ -135,9 +155,9 @@ class PanoramaView: UIView {
 
 
         self.motionManager.gyroUpdateInterval = CRMotionGyroUpdateInterval
-        if !self.motionManager.gyroActive && self.motionManager.gyroAvailable{
+        if !self.motionManager.isGyroActive && self.motionManager.isGyroAvailable{
 
-            self.motionManager.startGyroUpdatesToQueue(NSOperationQueue.currentQueue()!, withHandler: { (CMGyroData, NSError) -> Void in
+            self.motionManager.startGyroUpdates(to: OperationQueue.current!, withHandler: { (CMGyroData, NSError) -> Void in
                 self.rotateAccordingToDeviceMotionRotationRate(CMGyroData!)
             })
 
@@ -153,7 +173,7 @@ class PanoramaView: UIView {
     /*
     this function calculate the rotation of UIScrollview accoring to the device motion rotation rate.
     */
-    func rotateAccordingToDeviceMotionRotationRate(gyroData:CMGyroData){
+    func rotateAccordingToDeviceMotionRotationRate(_ gyroData:CMGyroData){
         // Why the y value not x or z.
         /*
         *    y:
@@ -176,8 +196,8 @@ class PanoramaView: UIView {
             }
 
 
-            UIView.animateWithDuration(0.3, delay: 0.0, options: [.BeginFromCurrentState, .AllowUserInteraction, .CurveEaseOut], animations: { () -> Void in
-                self.scrollView.setContentOffset(CGPointMake(offsetX, 0), animated: false)
+            UIView.animate(withDuration: 0.3, delay: 0.0, options: [.beginFromCurrentState, .allowUserInteraction, .curveEaseOut], animations: { () -> Void in
+                self.scrollView.setContentOffset(CGPoint(x: offsetX, y: 0), animated: false)
                 }, completion: nil)
         }
 
